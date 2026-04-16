@@ -14,7 +14,7 @@ import sys
 import os
 
 # 添加 scripts 目录到路径
-SCRIPT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'scripts')
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
 
 

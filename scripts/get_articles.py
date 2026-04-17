@@ -10,10 +10,12 @@ PAGE_LIMIT = 20
 
 def get_articles(target_date: str = None, mp_id: str = None):
     """
-    获取文章列表（自动分页，筛选指定日期的文章）
+    获取文章列表（自动分页）
 
     参数:
         target_date (str): 目标日期，格式 YYYY-MM-DD，默认为当天
+                           - 如果是当天：获取当前时间往前推 24 小时的文章
+                           - 如果是指定日期：获取该日期 00:00:00 到 23:59:59 的文章
         mp_id (str): 所属公众号 ID，可选
 
     返回:
@@ -26,17 +28,31 @@ def get_articles(target_date: str = None, mp_id: str = None):
     if not access_key or not secret_key or not base_url:
         raise ValueError("请确保在 .env 文件中配置了 ACCESS_KEY, SECRET_KEY 和 BASE_URL")
 
-    if target_date is None:
-        target_date = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")
-
-    try:
-        target_date_obj = datetime.strptime(target_date, "%Y-%m-%d").date()
-    except ValueError:
-        raise ValueError("target_date 格式必须为 YYYY-MM-DD")
-
     beijing_tz = timezone(timedelta(hours=8))
-    start_ts = datetime(target_date_obj.year, target_date_obj.month, target_date_obj.day, 0, 0, 0, tzinfo=beijing_tz).timestamp()
-    end_ts = datetime(target_date_obj.year, target_date_obj.month, target_date_obj.day, 23, 59, 59, tzinfo=beijing_tz).timestamp()
+    now = datetime.now(beijing_tz)
+    today = now.date()
+    
+    if target_date is None:
+        # 未指定日期，获取当前时间往前推 24 小时
+        start_dt = now - timedelta(days=1)
+        end_dt = now
+    else:
+        try:
+            target_date_obj = datetime.strptime(target_date, "%Y-%m-%d").date()
+        except ValueError:
+            raise ValueError("target_date 格式必须为 YYYY-MM-DD")
+        
+        if target_date_obj == today:
+            # 如果是当天，获取当前时间往前推 24 小时
+            start_dt = now - timedelta(days=1)
+            end_dt = now
+        else:
+            # 如果是指定日期，获取该日期 00:00:00 到 23:59:59
+            start_dt = datetime(target_date_obj.year, target_date_obj.month, target_date_obj.day, 0, 0, 0, tzinfo=beijing_tz)
+            end_dt = datetime(target_date_obj.year, target_date_obj.month, target_date_obj.day, 23, 59, 59, tzinfo=beijing_tz)
+    
+    start_ts = start_dt.timestamp()
+    end_ts = end_dt.timestamp()
 
     headers = {
         "Authorization": f"AK-SK {access_key}:{secret_key}"

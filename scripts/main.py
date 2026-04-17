@@ -12,6 +12,8 @@
 
 import sys
 import os
+import json
+from datetime import datetime, timezone, timedelta
 
 # 添加 scripts 目录到路径
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -82,9 +84,17 @@ def main():
         date = sys.argv[2] if len(sys.argv) > 2 else None
         from get_articles import get_articles
         result = get_articles(target_date=date)
-        print(f"获取到 {len(result)} 篇文章:")
-        for i, article in enumerate(result, 1):
-            print(f"{i}. {article['title']} - {article['mp_name']}")
+        
+        # 格式化 publish_time 为可读的日期时间
+        for article in result:
+            if article.get('publish_time'):
+                try:
+                    pt = int(article['publish_time'])
+                    article['publish_time'] = datetime.fromtimestamp(pt, tz=timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
+                except (ValueError, TypeError):
+                    article['publish_time'] = article['publish_time']
+        
+        print(json.dumps(result, ensure_ascii=False, indent=2))
 
     elif command == "article_detail":
         if len(sys.argv) < 3:
@@ -93,8 +103,7 @@ def main():
         from get_article_details import get_article_details
         article_id = sys.argv[2]
         result = get_article_details(article_id)
-        print("文章详情:")
-        print(result)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
 
     else:
         print(f"未知命令：{command}")

@@ -55,59 +55,60 @@ def main():
 
     command = sys.argv[1]
 
-    if command == "subscribe":
-        if len(sys.argv) < 3:
-            print("请提供公众号名称")
-            return
-        from add_mp import add_mp
-        mp_name = sys.argv[2]
-        result = add_mp(mp_name)
-        print(f"订阅结果：{result}")
+    try:
+        if command == "subscribe":
+            if len(sys.argv) < 3:
+                print(json.dumps({"success": False, "error": "请提供公众号名称"}, ensure_ascii=False))
+                return
+            from add_mp import add_mp
+            mp_name = sys.argv[2]
+            result = add_mp(mp_name)
+            print(json.dumps({"success": True, "data": result}, ensure_ascii=False))
 
-    elif command == "list_subs":
-        from list_mps import list_mps
-        kw = sys.argv[2] if len(sys.argv) > 2 else ""
-        result = list_mps(kw=kw)
-        print("已订阅公众号列表:")
-        print(result)
+        elif command == "list_subs":
+            from list_mps import list_mps
+            kw = sys.argv[2] if len(sys.argv) > 2 else ""
+            result = list_mps(kw=kw)
+            print(json.dumps({"success": True, "data": result}, ensure_ascii=False, indent=2))
 
-    elif command == "unsubscribe":
-        if len(sys.argv) < 3:
-            print("请提供公众号名称")
-            return
-        from delete_mp import delete_mp
-        mp_name = sys.argv[2]
-        result = delete_mp(mp_name)
-        print(f"删除结果：{result}")
+        elif command == "unsubscribe":
+            if len(sys.argv) < 3:
+                print(json.dumps({"success": False, "error": "请提供公众号名称"}, ensure_ascii=False))
+                return
+            from delete_mp import delete_mp
+            mp_name = sys.argv[2]
+            result = delete_mp(mp_name)
+            print(json.dumps({"success": True, "data": result}, ensure_ascii=False))
 
-    elif command == "articles":
-        date = sys.argv[2] if len(sys.argv) > 2 else None
-        from get_articles import get_articles
-        result = get_articles(target_date=date)
-        
-        # 格式化 publish_time 为可读的日期时间
-        for article in result:
-            if article.get('publish_time'):
-                try:
-                    pt = int(article['publish_time'])
-                    article['publish_time'] = datetime.fromtimestamp(pt, tz=timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
-                except (ValueError, TypeError):
-                    article['publish_time'] = article['publish_time']
-        
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        elif command == "articles":
+            date = sys.argv[2] if len(sys.argv) > 2 else None
+            from get_articles import get_articles
+            result = get_articles(target_date=date)
 
-    elif command == "article_detail":
-        if len(sys.argv) < 3:
-            print("请提供文章 ID")
-            return
-        from get_article_details import get_article_details
-        article_id = sys.argv[2]
-        result = get_article_details(article_id)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+            for article in result:
+                if article.get('publish_time'):
+                    try:
+                        pt = int(article['publish_time'])
+                        article['publish_time'] = datetime.fromtimestamp(pt, tz=timezone(timedelta(hours=8))).strftime('%Y-%m-%d %H:%M:%S')
+                    except (ValueError, TypeError):
+                        pass
 
-    else:
-        print(f"未知命令：{command}")
-        print_usage()
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+
+        elif command == "article_detail":
+            if len(sys.argv) < 3:
+                print(json.dumps({"success": False, "error": "请提供文章 ID"}, ensure_ascii=False))
+                return
+            from get_article_details import get_article_details
+            article_id = sys.argv[2]
+            result = get_article_details(article_id)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+
+        else:
+            print(json.dumps({"success": False, "error": f"未知命令：{command}"}, ensure_ascii=False))
+
+    except Exception as e:
+        print(json.dumps({"success": False, "error": str(e)}, ensure_ascii=False))
 
 
 if __name__ == "__main__":

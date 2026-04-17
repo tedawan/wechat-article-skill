@@ -34,12 +34,9 @@ def add_mp(mp_name: str, mp_id: str = None, mp_cover: str = None, avatar: str = 
 
     # 如果只传了 mp_name，需要先搜索获取公众号信息
     if mp_id is None and mp_cover is None and avatar is None and mp_intro is None:
-        # 先搜索同名公众号
-        print(f"正在搜索公众号：{mp_name}...")
         search_result = search_mps(kw=mp_name, limit=1)
 
         if not search_result:
-            print(f"未找到公众号：{mp_name}")
             return None
 
         # 获取搜索结果中的第一个公众号信息
@@ -52,17 +49,13 @@ def add_mp(mp_name: str, mp_id: str = None, mp_cover: str = None, avatar: str = 
                 mp_info = mp_list[0]
 
         if not mp_info:
-            print(f"未找到公众号：{mp_name}")
             return None
 
-        # 从搜索结果中提取公众号信息（适配 API 返回的字段）
         mp_id = mp_info.get("fakeid") or mp_info.get("mp_id")
         mp_cover = mp_info.get("round_head_img") or mp_info.get("mp_cover")
         avatar = mp_info.get("round_head_img") or mp_info.get("avatar")
         mp_intro = mp_info.get("signature") or mp_info.get("mp_intro")
         mp_name = mp_info.get("nickname") or mp_name
-
-        print(f"找到公众号：{mp_name} (mp_id: {mp_id})")
 
     # 构建请求体，只包含非空字段
     body = {

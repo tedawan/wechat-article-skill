@@ -31,7 +31,6 @@ def get_article_details(article_id: str):
     response = requests.get(url, headers=headers, timeout=10)
 
     if response.status_code == 422:
-        print("参数错误:", response.json())
         response.raise_for_status()
 
     response.raise_for_status()

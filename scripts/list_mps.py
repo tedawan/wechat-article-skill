@@ -43,7 +43,6 @@ def list_mps(kw: str = "", limit: int = 10, offset: int = 0):
 
     # 检查返回状态代码
     if response.status_code == 422:
-        print("参数错误:", response.json())
         response.raise_for_status()
 
     response.raise_for_status()

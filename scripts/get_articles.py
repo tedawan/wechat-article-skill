@@ -102,6 +102,7 @@ def get_articles(target_date: str = None, mp_id: str = None):
                     has_match_in_page = True
                     matched_articles.append({
                         "id": article.get("id"),
+                        "url": article.get("url"),
                         "created_at": article.get("created_at"),
                         "description": article.get("description"),
                         "title": article.get("title"),

@@ -23,12 +23,9 @@ def delete_mp(mp_name: str):
     if not access_key or not secret_key or not base_url:
         raise ValueError("请确保在 .env 文件中配置了 ACCESS_KEY, SECRET_KEY 和 BASE_URL")
 
-    # 先从已订阅列表中查找该公众号
-    print(f"正在查找公众号：{mp_name}...")
     list_result = list_mps(kw=mp_name, limit=100)
 
     if not list_result:
-        print(f"未找到公众号：{mp_name}")
         return None
 
     # 从已订阅列表中提取 mp_id
@@ -45,11 +42,7 @@ def delete_mp(mp_name: str):
             break
 
     if not mp_id:
-        print(f"未找到公众号：{mp_name}")
         return None
-
-    print(f"找到公众号：{mp_name} (mp_id: {mp_id})")
-    print(f"正在删除公众号...")
 
     headers = {
         "Authorization": f"AK-SK {access_key}:{secret_key}"
@@ -64,9 +57,7 @@ def delete_mp(mp_name: str):
         response.raise_for_status()
 
     response.raise_for_status()
-    result = response.text
-    print(f"删除结果：{result}")
-    return result
+    return response.text
 
 if __name__ == "__main__":
     try:

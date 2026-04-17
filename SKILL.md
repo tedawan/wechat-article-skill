@@ -82,8 +82,10 @@ python main.py articles 2026-04-16 --mp_id MP_WXS_xxxxxx
 
 **特性：**
 - 自动分页（每页 20 条）
-- 按 `publish_time` 筛选日期
-- 返回字段：`id`、`created_at`、`description`、`title`、`mp_name`、`publish_time`
+- 按 `publish_time` 筛选：
+  - 不传日期或传当天日期：获取最近 24 小时的文章
+  - 传历史日期：获取该日期 00:00:00 到 23:59:59 的文章
+- 返回字段：`id`、`created_at`、`description`、`title`、`mp_name`、`publish_time`（已格式化为 YYYY-MM-DD HH:MM:SS）
 
 ### 5. 获取文章详情
 
@@ -129,6 +131,10 @@ python main.py article_detail <article_id>
    → python main.py articles 2026-04-16
    → 返回文章列表，包含 article_id
 
-4. 获取文章详情
+4. 获取当天的文章
+   → python main.py articles
+   → 返回文章列表，包含 article_id
+
+5. 获取文章详情
    → python main.py article_detail <article_id>
 ```
